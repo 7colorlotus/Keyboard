@@ -1,5 +1,5 @@
-﻿/*
- * jQuery UI Virtual Keyboard Navigation v1.4 for Keyboard v1.18+ only (updated 3/1/2014)
+/*! jQuery UI Virtual Keyboard Navigation v1.6.2 *//*
+ * for Keyboard v1.18+ only (updated 4/28/2017)
  *
  * By Rob Garrison (aka Mottie & Fudgey)
  * Licensed under the MIT License
@@ -22,11 +22,20 @@
  *  $('#keyboard1')
  *   .keyboard(options)     // keyboard plugin
  *   .addNavigation();    // this keyboard extension
- * 
+ *
  */
 /*jshint browser:true, jquery:true, unused:false */
-(function($){
-"use strict";
+/*global require:false, define:false, module:false */
+;(function(factory) {
+	if (typeof define === 'function' && define.amd) {
+		define(['jquery'], factory);
+	} else if (typeof module === 'object' && typeof module.exports === 'object') {
+		module.exports = factory(require('jquery'));
+	} else {
+		factory(jQuery);
+	}
+}(function($) {
+'use strict';
 $.keyboard = $.keyboard || {};
 
 $.keyboard.navigationKeys = {
@@ -41,41 +50,60 @@ $.keyboard.navigationKeys = {
 	up         : 38,
 	right      : 39,
 	down       : 40,
+	// move caret WITH navigate toggle active
 	caretrt    : 45, // Insert key
-	caretlt    : 46  // delete key
+	caretlt    : 46, // delete key
+
+	// ** custom navigationKeys functions **
+	// move caret without navigate toggle active
+	caretright : function(kb){
+		$.keyboard.keyaction.right(kb);
+	},
+	caretleft : function(kb){
+		$.keyboard.keyaction.left(kb);
+	}
+
 };
 
 $.fn.addNavigation = function(options){
 	return this.each(function(){
 		// make sure a keyboard is attached
-		var o, k, base = $(this).data('keyboard'),
+		var o, k,
+			base = $(this).data('keyboard'),
+			opts = base.options,
 			defaults = {
 				position   : [0,0],     // set start position [row-number, key-index]
 				toggleMode : false,     // true = navigate the virtual keyboard, false = navigate in input/textarea
-				
-				focusClass : 'hasFocus' // css class added when toggle mode is on
-			};
+				focusClass : 'hasFocus',// css class added when toggle mode is on
+				toggleKey  : null,      // defaults to $.keyboard.navigationKeys.toggle value
+				rowLooping : false      // when you are at the left end position and hit the left cursor, you will appear at the other end
+			},
+			kbevents = $.keyboard.events,
+			kbcss = $.keyboard.css;
+
 		if (!base) { return; }
 
 		base.navigation_options = o = $.extend({}, defaults, options);
 		base.navigation_keys = k = $.extend({}, $.keyboard.navigationKeys);
+		base.navigation_namespace = base.namespace + 'Nav';
+		base.extensionNamespace.push( base.navigation_namespace );
+
 		// save navigation settings - disabled when the toggled
 		base.saveNav = [ base.options.tabNavigation, base.options.enterNavigation ];
 		base.allNavKeys = $.map(k, function(v,i){ return v; });
 
 		// Setup
 		base.navigation_init = function(){
-
 			base.$keyboard.toggleClass(o.focusClass, o.toggleMode)
-				.find('.ui-keyboard-keyset:visible')
-				.find('.ui-keyboard-button[data-pos="' + o.position[0] + ',' + o.position[1] + '"]')
-				.addClass('ui-state-hover');
+				.find('.' + kbcss.keySet + ':visible')
+				.find('.' + kbcss.keyButton + '[data-pos="' + o.position[0] + ',' + o.position[1] + '"]')
+				.addClass(opts.css.buttonHover);
 
 			base.$preview
-			.unbind('keydown.keyboardNav')
-			.bind('keydown.keyboardNav',function(e){
-				return base.checkKeys(e.which);
-			});
+				.unbind(base.navigation_namespace)
+				.bind('keydown' + base.navigation_namespace,function(e){
+					return base.checkKeys(e.which);
+				});
 
 		};
 
@@ -84,7 +112,7 @@ $.fn.addNavigation = function(options){
 				return;
 			}
 			var k = base.navigation_keys;
-			if (key === k.toggle || disable) {
+			if (key === ( o.toggleKey || k.toggle ) || disable) {
 				o.toggleMode = (disable) ? false : !o.toggleMode;
 				base.options.tabNavigation = (o.toggleMode) ? false : base.saveNav[0];
 				base.options.enterNavigation = (o.toggleMode) ? false : base.saveNav[1];
@@ -92,9 +120,9 @@ $.fn.addNavigation = function(options){
 			base.$keyboard.toggleClass(o.focusClass, o.toggleMode);
 			if ( o.toggleMode && key === k.enter ) {
 				base.$keyboard
-					.find('.ui-keyboard-keyset:visible')
-					.find('.ui-keyboard-button[data-pos="' + o.position[0] + ',' + o.position[1] + '"]')
-					.trigger('repeater.keyboard');
+					.find('.' + kbcss.keySet + ':visible')
+					.find('.' + kbcss.keyButton + '[data-pos="' + o.position[0] + ',' + o.position[1] + '"]')
+					.trigger(kbevents.kbRepeater);
 				return false;
 			}
 			if ( o.toggleMode && $.inArray(key, base.allNavKeys) >= 0 ) {
@@ -103,13 +131,35 @@ $.fn.addNavigation = function(options){
 			}
 		};
 
-		base.navigateKeys = function(key, row, indx){
-			indx = indx || o.position[1];
-			row = row || o.position[0];
-			var vis = base.$keyboard.find('.ui-keyboard-keyset:visible'),
-				maxRow = vis.find('.ui-keyboard-button-endrow').length - 1,
-				maxIndx = vis.find('.ui-keyboard-button[data-pos^="' + row + ',"]').length - 1,
-				p = base.lastCaret,
+		base.getMaxIndex = function(vis, row) {
+			return vis.find('.' + kbcss.keyButton + '[data-pos^="' + row + ',"]').length - 1;
+		};
+
+		base.leftNavigateKey = function(indx, maxIndx) {
+			var rowLooping = base.navigation_options.rowLooping;
+			var newIndx = indx - 1;
+			return newIndx >= 0 ? newIndx :
+				rowLooping ? maxIndx : 0 ;
+		};
+
+		base.rightNavigateKey = function(indx, maxIndx) {
+			var rowLooping = base.navigation_options.rowLooping;
+			var newIndx = indx + 1;
+			return newIndx <= maxIndx ? newIndx :
+				rowLooping ? 0 : maxIndx ;
+		};
+
+		base.navigateKeys = function(key, row, indx) {
+			if (!base.isVisible()) {
+				return;
+			}
+			indx = typeof indx === 'number' ? indx : o.position[1];
+			row = typeof row === 'number' ? row : o.position[0];
+			var nextMaxIndx,
+				vis = base.$keyboard.find('.' + kbcss.keySet + ':visible'),
+				maxRow = vis.find('.' + kbcss.endRow).length - 1,
+				maxIndx = base.getMaxIndex(vis, row),
+				p = base.last,
 				l = base.$preview.val().length,
 				k = base.navigation_keys;
 
@@ -118,50 +168,75 @@ $.fn.addNavigation = function(options){
 				case k.pagedown : row = maxRow; break; // pageDown
 				case k.end      : indx = maxIndx; break; // End
 				case k.home     : indx = 0; break; // Home
-				case k.left     : indx += (indx > 0) ? -1 : 0; break; // Left
-				case k.up       : row += (row > 0) ? -1 : 0; break; // Up
-				case k.right    : indx += 1; break; // Right
-				case k.down     : row += (row + 1 > maxRow) ? 0 : 1; break; // Down
-				case k.caretRt  : p.start++; break; // caret right
-				case k.caretLt  : p.start--; break; // caret right
+				case k.left     : indx = base.leftNavigateKey(indx, maxIndx); break; // Left
+				case k.up       :
+					row += (row > 0) ? -1 : 0;
+					nextMaxIndx = base.getMaxIndex(vis, row);
+					indx = indx === maxIndx ? nextMaxIndx : indx;
+					break; // Up
+				case k.right    : indx = base.rightNavigateKey(indx, maxIndx); break; // Right
+				case k.down     :
+					row += (row + 1 > maxRow) ? 0 : 1;
+					nextMaxIndx = base.getMaxIndex(vis, row);
+					indx = indx === maxIndx ? nextMaxIndx : indx;
+					break; // Down
+				case k.caretrt  : p.start++; break; // caret right
+				case k.caretlt  : p.start--; break; // caret left
 			}
 
 			// move caret
-			if (key === k.caretRt || key === k.caretLt) {
+			if (key === k.caretrt || key === k.caretlt) {
 				p.start = p.start < 0 ? 0 : p.start > l ? l : p.start;
-				p.end = p.start;
-				base.lastCaret = p;
-				base.$preview.focus().caret( p.start, p.start );
+				base.last.start = base.last.end = p.end = p.start;
+				$.keyboard.caret( base.$preview, base.last );
 			}
 
 			// get max index of new row
-			maxIndx = vis.find('.ui-keyboard-button[data-pos^="' + row + ',"]').length - 1;
+			maxIndx = base.getMaxIndex(vis, row);
 			if (indx > maxIndx) { indx = maxIndx; }
 
-			vis.find('.ui-state-hover').removeClass('ui-state-hover');
-			vis.find('.ui-keyboard-button[data-pos="' + row + ',' + indx + '"]').addClass('ui-state-hover');
+			vis.find('.' + opts.css.buttonHover).removeClass(opts.css.buttonHover);
+			vis.find('.' + kbcss.keyButton + '[data-pos="' + row + ',' + indx + '"]').addClass(opts.css.buttonHover);
 			o.position = [ row, indx ];
 		};
 
 		// visible event is fired before this extension is initialized, so check!
-		if (base.options.alwaysOpen && base.isVisible) {
-			base.$keyboard.find('.ui-state-hover').removeClass('ui-state-hover');
+		if (base.options.alwaysOpen && base.isVisible()) {
+			base.$keyboard.find('.' + opts.css.buttonHover).removeClass(opts.css.buttonHover);
 			base.navigation_init();
 		}
-		// capture and simulate typing
+		// navigation bindings
 		base.$el
-			.bind('visible.keyboard', function(e){
-				base.$keyboard.find('.ui-state-hover').removeClass('ui-state-hover');
+			.unbind(base.navigation_namespace)
+			.bind(kbevents.kbVisible, function(){
+				base.$keyboard.find('.' + opts.css.buttonHover).removeClass(opts.css.buttonHover);
 				base.navigation_init();
 			})
-			.bind('inactive.keyboard hidden.keyboard', function(e){
+			.bind(kbevents.kbInactive + ' ' + kbevents.kbHidden, function(e){
 				base.checkKeys(e.which, true); // disable toggle mode & revert navigation options
 			})
+			.bind(kbevents.kbKeysetChange, function(){
+				base.navigateKeys(null);
+			})
 			.bind('navigate navigateTo', function(e, row, indx){
-				// no row given, check if it's a key name
+				var key;
+				// no row given, check if it's a navigation key or keyaction
 				row = isNaN(row) ? row.toLowerCase() : row;
-				if (base.navigation_keys.hasOwnProperty(row)) {
-					base.checkKeys( base.navigation_keys[row] );
+				if (row in base.navigation_keys) {
+					key = base.navigation_keys[row];
+					if (isNaN(key) && key in $.keyboard.keyaction) {
+						// defined navigation_keys string name is a defined keyaction
+						$.keyboard.keyaction[key]( base, this, e );
+					} else if ($.isFunction(key)) {
+						// custom function defined in navigation_keys
+						key(base);
+					} else {
+						// key (e.which value) is defined in navigation_keys
+						base.checkKeys(key);
+					}
+				} else if ( typeof row === 'string' && row in $.keyboard.keyaction ) {
+					// navigate called directly with a keyaction name
+					$.keyboard.keyaction[row]( base, this, e );
 				} else {
 					base.navigateKeys(null, row, indx);
 				}
@@ -169,4 +244,5 @@ $.fn.addNavigation = function(options){
 
 	});
 };
-})(jQuery);
+
+}));

@@ -9,8 +9,10 @@
  */
 
 /* qwerty by Mika Perreri Korhonen (https://github.com/jouk0) -  */
-$.keyboard.layouts['swedish-qwerty'] = {
-	'default' : [
+jQuery.keyboard.layouts['swedish-qwerty'] = {
+	'name' : 'swedish-qwerty',
+	'lang' : ['sv'],
+	'normal' : [
 		"\u00a7 1 2 3 4 5 6 7 8 9 0 + \u0301 {bksp}",
 		"{tab} q w e r t y u i o p \u00e5 \u0308",
 		"a s d f g h j k l \u00f6 \u00e4 ' {enter}",
@@ -34,8 +36,10 @@ $.keyboard.layouts['swedish-qwerty'] = {
 };
 
 /* dvorak - from http://www.ludd.luth.se/~torger/se_dvorak.html */
-$.keyboard.layouts['swedish-dvorak'] = {
-	'default' : [
+jQuery.keyboard.layouts['swedish-dvorak'] = {
+	'name' : 'swedish-qwerty',
+	'lang' : ['sv'],
+	'normal' : [
 		"\u00a7 1 2 3 4 5 6 7 8 9 0 + \u0301 {bksp}",
 		"{tab} \u00f6 \u00e5 \u00e4 p y f g c r l q \u00a8",
 		"a o e u i d h t n s - < {enter}",
@@ -57,37 +61,3 @@ $.keyboard.layouts['swedish-dvorak'] = {
 		"{accept} {alt} {space} {alt} {cancel}"
 	]
 };
-
-// Keyboard Language
-// please update this section to match this language and email me with corrections!
-// ***********************
-if (typeof(language) === 'undefined') { var language = {}; };
-language.swedish = {
-	display : {
-		'a'      : '\u2714:Accept (Shift-Enter)', // check mark - same action as accept
-		'accept' : 'Accept:Accept (Shift-Enter)',
-		'alt'    : 'AltGr:Alternate Graphemes',
-		'b'      : '\u2190:Backspace',    // Left arrow (same as &larr;)
-		'bksp'   : 'Bksp:Backspace',
-		'c'      : '\u2716:Cancel (Esc)', // big X, close - same action as cancel
-		'cancel' : 'Cancel:Cancel (Esc)',
-		'clear'  : 'C:Clear',             // clear num pad
-		'combo'  : '\u00f6:Toggle Combo Keys',
-		'dec'    : '.:Decimal',           // decimal point for num pad (optional), change '.' to ',' for European format
-		'e'      : '\u21b5:Enter',        // down, then left arrow - enter symbol
-		'enter'  : 'Enter:Enter',
-		'lock'   : '\u21ea Lock:Caps Lock', // caps lock
-		's'      : '\u21e7:Shift',        // thick hollow up arrow
-		'shift'  : 'Shift:Shift',
-		'sign'   : '\u00b1:Change Sign',  // +/- sign for num pad
-		'space'  : '&nbsp;:Space',
-		't'      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
-		'tab'    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-	},
-	// Message added to the key title while hovering, if the mousewheel plugin exists
-	wheelMessage : 'Use mousewheel to see other keys',
-};
-
-// This will replace all default language options with these language options.
-// it is separated out here so the layout demo will work properly.
-$.extend(true, $.keyboard.defaultOptions, language.swedish);
