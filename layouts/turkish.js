@@ -11,8 +11,10 @@
  */
 
 /* from http://ascii-table.com/keyboard.php/179 */
-$.keyboard.layouts['turkish-q'] = {
-	'default' : [
+jQuery.keyboard.layouts['turkish-q'] = {
+	'name' : 'turkish-q',
+	'lang' : ['tr'],
+	'normal' : [
 		"\u0022 1 2 3 4 5 6 7 8 9 0 \u002a \u002d {bksp}",
 		"{tab} q w e r t y u \u0131 o p \u011f \u00fc",
 		"{lock} a s d f g h j k l \u015f \u0069 , {enter}",
@@ -36,8 +38,10 @@ $.keyboard.layouts['turkish-q'] = {
 };
 
 /* from http://ascii-table.com/keyboard.php/440 */
-$.keyboard.layouts['turkish-f'] = {
-	'default' : [
+jQuery.keyboard.layouts['turkish-f'] = {
+	'name' : 'turkish-f',
+	'lang' : ['tr'],
+	'normal' : [
 		"\u002B \u0031 \u0032 \u0033 \u0034 \u0035 \u0036 \u0037 \u0038 \u0039 \u0030 \u002F \u002D {bksp}",
 		"{tab} \u0066 \u0067 \u011F \u0131 \u006F \u0064 \u0072 \u006E \u0068 \u0070 \u0071 \u0077",
 		"{lock} \u0075 \u0069 \u0065 \u0061 \u00FC \u0074 \u006B \u006D \u006C \u0079 \u015F \u0078 {enter}",
@@ -59,37 +63,3 @@ $.keyboard.layouts['turkish-f'] = {
 		"{accept} {alt} {space} {alt} {cancel}"
 	]
 };
-
-// Keyboard Language
-// please update this section to match this language and email me with corrections!
-// ***********************
-if (typeof(language) === 'undefined') { var language = {}; };
-language.turkish = {
-	display : {
-		'a'      : '\u2714:Accept (Shift-Enter)', // check mark - same action as accept
-		'accept' : 'Accept:Accept (Shift-Enter)',
-		'alt'    : 'AltGr:Alternate Graphemes',
-		'b'      : '\u2190:Backspace',    // Left arrow (same as &larr;)
-		'bksp'   : 'Bksp:Backspace',
-		'c'      : '\u2716:Cancel (Esc)', // big X, close - same action as cancel
-		'cancel' : 'Cancel:Cancel (Esc)',
-		'clear'  : 'C:Clear',             // clear num pad
-		'combo'  : '\u00f6:Toggle Combo Keys',
-		'dec'    : '.:Decimal',           // decimal point for num pad (optional), change '.' to ',' for European format
-		'e'      : '\u21b5:Enter',        // down, then left arrow - enter symbol
-		'enter'  : 'Enter:Enter',
-		'lock'   : '\u21ea Lock:Caps Lock', // caps lock
-		's'      : '\u21e7:Shift',        // thick hollow up arrow
-		'shift'  : 'Shift:Shift',
-		'sign'   : '\u00b1:Change Sign',  // +/- sign for num pad
-		'space'  : '&nbsp;:Space',
-		't'      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
-		'tab'    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-	},
-	// Message added to the key title while hovering, if the mousewheel plugin exists
-	wheelMessage : 'Use mousewheel to see other keys',
-};
-
-// This will replace all default language options with these language options.
-// it is separated out here so the layout demo will work properly.
-$.extend(true, $.keyboard.defaultOptions, language.turkish);

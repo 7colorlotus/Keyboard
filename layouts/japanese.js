@@ -7,17 +7,19 @@
  *
  * license for this file: WTFPL, unless the source layout site has a problem with me using them as a reference
  *
- * Japanese layout by Paco Alcantara (https://github.com/pacoalcantara), based on: 	
- * http://www.fileformat.info/info/unicode/char/search.htm 
+ * Japanese layout by Paco Alcantara (https://github.com/pacoalcantara), based on:
+ * http://www.fileformat.info/info/unicode/char/search.htm
  * http://www.tamasoft.co.jp/en/general-info/unicode.html
  * http://ascii-table.com/keyboard.php/194
  * Preferably use 'japanese-kana' unless roma-ji characters are needed on input.
  */
-$.keyboard.layouts['japanese-kana'] = {
-	'default' : [
+jQuery.keyboard.layouts['japanese-kana'] = {
+	'name' : 'japanese-kana',
+	'lang' : ['ja'],
+	'normal' : [
 		'0 1 2 3 4 5 6 7 8 9',
 		'\u3042 \u3044 \u3046 \u3048 \u304a \u306f \u3072 \u3075 \u3078 \u307b',
-        '\u304b \u304d \u304f \u3051 \u3053 \u307e \u307f \u3080 \u3081 \u3082',
+		'\u304b \u304d \u304f \u3051 \u3053 \u307e \u307f \u3080 \u3081 \u3082',
 		'\u3055 \u3057 \u3059 \u305b \u305d \u3084 \u3086 \u3088 {bksp}',
 		'\u305f \u3061 \u3064 \u3066 \u3068 \u3089 \u308a \u308b \u308c \u308d',
 		'\u306a \u306b \u306c \u306d \u306e \u308f \u3092 \u3093 \u3090 \u3091',
@@ -28,7 +30,7 @@ $.keyboard.layouts['japanese-kana'] = {
 	'shift' : [
 		'0 1 2 3 4 5 6 7 8 9',
 		'\u30a2 \u30a4 \u30a6 \u30a8 \u30aa \u30cf \u30d2 \u30d5 \u30d8 \u30db',
-        '\u30ab \u30ad \u30af \u30b1 \u30b3 \u30de \u30df \u30e0 \u30e1 \u30e2',
+		'\u30ab \u30ad \u30af \u30b1 \u30b3 \u30de \u30df \u30e0 \u30e1 \u30e2',
 		'\u30b5 \u30b7 \u30b9 \u30bb \u30bd \u30e4 \u30e6 \u30e8  {bksp}',
 		'\u30bf \u30c1 \u30c4 \u30c6 \u30c8 \u30e9 \u30ea \u30eb \u30ec \u30ed',
 		'\u30ca \u30cb \u30cc \u30cd \u30ce \u30ef \u30f2 \u30f3 \u30f0 \u30f1',
@@ -38,15 +40,24 @@ $.keyboard.layouts['japanese-kana'] = {
 	],
 	'alt' : [
 		'0 1 2 3 4 5 6 7 8 9 - ^ \uffe5 {bksp}',
+		"{tab} q w e r t y u i o p \u0040 [",
+		"a s d f g h j k l ; : ] {enter}",
+		" {shift} z x c v b n m , . / \\  {shift}",
+		"{accept} {space} {alt} {cancel}"
+	],
+	'alt-shift' : [
+		'0 1 2 3 4 5 6 7 8 9 - ^ \uffe5 {bksp}',
 		"{tab} Q W E R T Y U I O P \u0040 [",
 		"A S D F G H J K L ; : ] {enter}",
-		"{alt} Z X C V B N M , . / \\ {alt}",
-		"{accept} {space} {cancel}"
+		" {shift} Z X C V B N M , . / \\ {shift}",
+		"{accept} {space} {alt} {cancel}"
 	]
 };
 
-$.keyboard.layouts['japanese-qwerty'] = {
-	'default' : [
+jQuery.keyboard.layouts['japanese-qwerty'] = {
+	'name' : 'japanese-qwerty',
+	'lang' : ['ja'],
+	'normal' : [
 		"1 2 3 4 5 6 7 8 9 0 - ^ \u00a5 {bksp}",
 		"{tab} q w e r t y u i o p \u0040 [",
 		"a s d f g h j k l ; : ] {enter}",
@@ -75,37 +86,3 @@ $.keyboard.layouts['japanese-qwerty'] = {
 		"{accept} {alt} {space} {alt} {cancel}"
 	]
 };
-
-// Keyboard Language
-// please update this section to match this language and email me with corrections!
-// ***********************
-if (typeof(language) === 'undefined') { var language = {}; };
-language.japanese = {
-	display : {
-		'a'      : '\u2714:Accept (Shift-Enter)', // check mark - same action as accept
-		'accept' : 'Accept:Accept (Shift-Enter)',
-		'alt'    : 'AltGr:Roma-ji | Hiragana/Kana',
-		'b'      : '\u2190:Backspace',    // Left arrow (same as &larr;)
-		'bksp'   : 'Bksp:Backspace',
-		'c'      : '\u2716:Cancel (Esc)', // big X, close - same action as cancel
-		'cancel' : 'Cancel:Cancel (Esc)',
-		'clear'  : 'C:Clear',             // clear num pad
-		'combo'  : '\u00f6:Toggle Combo Keys',
-		'dec'    : '.:Decimal',           // decimal point for num pad (optional), change '.' to ',' for European format
-		'e'      : '\u21b5:Enter',        // down, then left arrow - enter symbol
-		'enter'  : 'Enter:Enter',
-		'lock'   : '\u21ea Lock:Caps Lock', // caps lock
-		's'      : '\u21e7:Shift',        // thick hollow up arrow
-		'shift'  : 'Shift:Katakana |Hiragana',
-		'sign'   : '\u00b1:Change Sign',  // +/- sign for num pad
-		'space'  : '&nbsp;:Space',
-		't'      : '\u21e5:Tab',          // right arrow to bar (used since this virtual keyboard works with one directional tabs)
-		'tab'    : '\u21e5 Tab:Tab'       // \u21b9 is the true tab symbol (left & right arrows)
-	},
-	// Message added to the key title while hovering, if the mousewheel plugin exists
-	wheelMessage : 'Use mousewheel to see other keys',
-};
-
-// This will replace all default language options with these language options.
-// it is separated out here so the layout demo will work properly.
-$.extend(true, $.keyboard.defaultOptions, language.japanese);
